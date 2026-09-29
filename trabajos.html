@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#B3264B">
+<title>Mi Búsqueda CDMX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: una columna para celular — encabezado fijo con resumen, filtros, tarjetas de vacantes, hoja inferior para detalle */
+:root{
+  --bg:#F3F4F1; --surface:#FFFFFF; --sunk:#E7E9E3; --fg:#1C2321; --muted:#5E6A66; --line:#D5D9D2;
+  --accent:#B3264B; --accent-ink:#FFFFFF; --accent-soft:#F6DDE4;
+  --st-pend:#6B7572; --st-env:#2D63B5; --st-resp:#8A5A00; --st-ent:#6A3DB5; --st-ofe:#1E7A45; --st-desc:#8E8E8E;
+  --st-pend-bg:#E6E8E5; --st-env-bg:#DCE7F7; --st-resp-bg:#FBEBC8; --st-ent-bg:#E8DEF8; --st-ofe-bg:#D6F0E0; --st-desc-bg:#ECECEC;
+  --warn:#A34A00; --warn-bg:#FFE9D2; --danger:#B42318;
+  --f-display:"Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --f-body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --r:14px; --shadow:0 1px 2px rgba(20,30,28,.06), 0 4px 14px rgba(20,30,28,.06);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#121615; --surface:#1B211F; --sunk:#252C2A; --fg:#E9EDEA; --muted:#9BA7A2; --line:#2F3835;
+  --accent:#F0708F; --accent-ink:#2A0A13; --accent-soft:#3A1E26;
+  --st-pend:#A7B0AD; --st-env:#8DB4F2; --st-resp:#F2C263; --st-ent:#B79CF2; --st-ofe:#71D39A; --st-desc:#8A8A8A;
+  --st-pend-bg:#2A302E; --st-env-bg:#1D2A40; --st-resp-bg:#3A2E12; --st-ent-bg:#2B2140; --st-ofe-bg:#15331F; --st-desc-bg:#262626;
+  --warn:#FFB26B; --warn-bg:#3A2612; --danger:#FF8A80;
+  --shadow:0 1px 2px rgba(0,0,0,.3); color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#121615; --surface:#1B211F; --sunk:#252C2A; --fg:#E9EDEA; --muted:#9BA7A2; --line:#2F3835;
+  --accent:#F0708F; --accent-ink:#2A0A13; --accent-soft:#3A1E26;
+  --st-pend:#A7B0AD; --st-env:#8DB4F2; --st-resp:#F2C263; --st-ent:#B79CF2; --st-ofe:#71D39A; --st-desc:#8A8A8A;
+  --st-pend-bg:#2A302E; --st-env-bg:#1D2A40; --st-resp-bg:#3A2E12; --st-ent-bg:#2B2140; --st-ofe-bg:#15331F; --st-desc-bg:#262626;
+  --warn:#FFB26B; --warn-bg:#3A2612; --danger:#FF8A80;
+  --shadow:0 1px 2px rgba(0,0,0,.3); color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:0 40px}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:14px 10px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:12px}
+h1{font-family:var(--f-display);font-weight:800;font-size:1.55rem;letter-spacing:-.02em;margin:0;line-height:1.1}
+h1 small{display:block;font-family:var(--f-body);font-weight:500;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.iconbtn{border:1px solid var(--line);background:var(--surface);border-radius:999px;height:40px;padding:0 14px;font-weight:600;font-size:.88rem;flex:none}
+.tally{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.tally div{background:var(--surface);border-radius:10px;padding:8px 10px;border:1px solid var(--line)}
+.tally b{display:block;font-family:var(--f-display);font-size:1.35rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.tally span{font-size:.72rem;color:var(--muted);letter-spacing:.02em}
+.search{margin-top:10px;display:flex;gap:8px}
+.search input{flex:1;min-width:0;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);padding:0 12px}
+.search select{height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);padding:0 8px}
+.chips{display:flex;gap:6px;overflow-x:auto;margin-top:10px;padding-bottom:2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:.84rem;font-weight:600;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.chip i{font-style:normal;opacity:.65;margin-left:4px;font-variant-numeric:tabular-nums}
+
+.banner{margin-top:12px;border-radius:10px;padding:10px 12px;font-size:.88rem;background:var(--warn-bg);color:var(--warn)}
+.list{display:grid;gap:10px;margin-top:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:14px;display:grid;gap:8px;text-align:left;width:100%}
+.card-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.card h3{margin:0;font-size:1.02rem;font-weight:700;line-height:1.25;text-wrap:balance}
+.meta{font-size:.84rem;color:var(--muted)}
+.meta .pay{color:var(--fg);font-weight:600}
+.pill{flex:none;font-size:.74rem;font-weight:700;border-radius:999px;padding:4px 9px;letter-spacing:.02em;white-space:nowrap}
+.card-foot{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tag{font-size:.74rem;border-radius:6px;padding:2px 7px;background:var(--sunk);color:var(--muted);font-weight:600}
+.tag.new{background:var(--accent-soft);color:var(--accent)}
+.tag.due{background:var(--warn-bg);color:var(--warn)}
+.when{margin-left:auto;font-size:.76rem;color:var(--muted)}
+.empty{text-align:center;color:var(--muted);padding:40px 12px}
+.card{cursor:pointer}
+.quick{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;padding-top:4px;border-top:1px solid var(--line)}
+.quick .btn{justify-content:center;padding:10px 12px}
+.btn.wa{background:var(--wa-bg);border-color:var(--wa-bg);color:var(--wa-ink)}
+:root{--wa-bg:#1E8E4E;--wa-ink:#FFFFFF}
+
+
+/* hoja inferior */
+.scrim{position:fixed;inset:0;background:rgba(10,14,13,.45);z-index:20}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--bg);border-radius:18px 18px 0 0;max-height:92%;overflow-y:auto;padding-inline:16px;padding-block:8px calc(24px + env(safe-area-inset-bottom,0px))}
+.sheet-in{max-width:560px;margin:0 auto;display:grid;gap:16px}
+.grab{width:40px;height:4px;border-radius:4px;background:var(--line);margin:4px auto 0}
+.sheet-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.sheet h2{font-family:var(--f-display);font-weight:800;font-size:1.35rem;margin:0;letter-spacing:-.01em;line-height:1.15;text-wrap:balance}
+.close{border:0;background:var(--sunk);border-radius:999px;width:36px;height:36px;font-size:1.1rem;flex:none}
+.sec{display:grid;gap:8px}
+.lbl{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.states{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.states button{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 4px;font-size:.84rem;font-weight:600}
+.states button[aria-pressed="true"]{border-width:2px}
+.contact{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;gap:8px}
+.contact-row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.cval{font-family:var(--f-mono);font-size:.9rem;word-break:break-all;user-select:all;min-width:0}
+.ckind{font-size:.72rem;color:var(--muted);font-weight:600}
+.btns{display:flex;gap:6px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:8px 12px;font-size:.86rem;font-weight:600;text-decoration:none;color:var(--fg);display:inline-flex;align-items:center;gap:6px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--danger);border-color:var(--danger);background:transparent}
+.btn.dangerfill{background:var(--danger);border-color:var(--danger);color:var(--bg)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+textarea,.field input,.field select{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px}
+textarea{min-height:84px;resize:vertical}
+.field{display:grid;gap:4px}
+.field label{font-size:.8rem;font-weight:600;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:380px){.grid2{grid-template-columns:1fr}.states{grid-template-columns:repeat(2,1fr)}}
+.log{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.log li{font-size:.86rem;border-left:2px solid var(--line);padding-left:10px}
+.log time{display:block;font-size:.74rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.hint{font-size:.8rem;color:var(--muted)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.confirm{background:var(--sunk);border-radius:12px;padding:12px;display:grid;gap:8px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:.88rem;font-weight:600;z-index:40;max-width:calc(100% - 32px)}
+.savedot{font-size:.74rem;color:var(--muted);margin-top:8px}
+@media (prefers-reduced-motion:no-preference){.sheet{animation:up .22s ease-out}@keyframes up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}}
+</style>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Mi Búsqueda CDMX<small id="sub">Restaurantes y tiendas · seguimiento</small></h1>
+      <button class="iconbtn" id="btnAjustes" type="button">Ajustes</button>
+    </div>
+    <div class="tally" id="tally"></div>
+    <div class="search">
+      <input id="q" type="search" placeholder="Buscar empresa, zona o puesto" aria-label="Buscar">
+      <select id="fTipo" aria-label="Tipo">
+        <option value="">Todo</option><option>Restaurante</option><option>Tienda</option>
+      </select>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Filtrar por estado"></div>
+    <div class="savedot" id="savedot"></div>
+  </header>
+  <div id="banner"></div>
+  <main class="list" id="list"></main>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<section class="sheet" id="sheet" hidden aria-modal="true" role="dialog"><div class="sheet-in" id="sheetIn"></div></section>
+<div class="toast" id="toast" hidden></div>
+
+<!-- LISTA DE OFERTAS: se actualiza cada 3 días. Cada oferta tiene un "id" fijo; no cambiarlo. -->
+<script type="application/json" id="ofertas">
+{
+  "actualizado": "2026-09-29",
+  "ofertas": [
+    {"id":"anderson-grupo","empresa":"Grupo Anderson's","tipo":"Restaurante","zona":"Coyoacán / Reforma","puesto":"Mesera · Porfirio's, Harry's, La Vicenta","sueldo":"","contactos":[{"tipo":"whatsapp","valor":"5532405078"},{"tipo":"email","valor":"karin.amaro@grupoandersons.com"}],"notas":"Piden CV con fotografía.","fuente":"https://www.facebook.com/TalentoAndersons/"},
+    {"id":"hunan-grupo","empresa":"Grupo Hunan","tipo":"Restaurante","zona":"San Ángel / Polanco","puesto":"Mesera · restaurantes de alta gama","sueldo":"","contactos":[{"tipo":"telefono","valor":"5519909881"},{"tipo":"email","valor":"talento@grupohunan.com"}],"notas":"Entrevistas los miércoles de 12:30 a 14:00. Publicaciones antiguas: confirmar por teléfono.","fuente":"https://www.talento.grupohunan.com/vacante-cajeros-2023/"},
+    {"id":"sonora-grill","empresa":"Sonora Grill Group","tipo":"Restaurante","zona":"Reforma / Coyoacán","puesto":"Hostess / Mesera","sueldo":"$12,000–15,000","contactos":[{"tipo":"telefono","valor":"5587913971"},{"tipo":"email","valor":"jobs.sonoragrill@gmail.com"}],"notas":"El correo es Gmail: confirmar por teléfono antes de mandar documentos.","fuente":"https://www.facebook.com/p/Reclutamiento-y-Seleccion-Sonora-Grill-Group-100064088239154/"},
+    {"id":"costeno-grupo","empresa":"Grupo Costeño","tipo":"Restaurante","zona":"Polanco","puesto":"Capitana de meseros / Mesera","sueldo":"Base + propinas","contactos":[{"tipo":"email","valor":"sofia.wohler@grupocosteno.com"},{"tipo":"email","valor":"alejandra.hernandez@grupocosteno.com"}],"notas":"Restaurantes Animal y Ryoshi en Masaryk.","fuente":"https://mx.linkedin.com/company/grupo-coste-o"},
+    {"id":"toks-condesa","empresa":"TOKS","tipo":"Restaurante","zona":"Condesa","puesto":"Mesera","sueldo":"","contactos":[{"tipo":"whatsapp","valor":"5521722581"}],"notas":"Número para agendar entrevista.","fuente":"https://mx.indeed.com/q-restaurantes-toks-l-iztapalapa,-cdmx-empleos.html"},
+    {"id":"tizoncito-condesa","empresa":"El Tizoncito","tipo":"Restaurante","zona":"Condesa","puesto":"Mesera vendedora (turno día)","sueldo":"$9,451","contactos":[{"tipo":"whatsapp","valor":"5651138781"}],"notas":"Turno 10:00 a 19:00. Aceptan WhatsApp o llamada.","fuente":"https://www.glassdoor.com.mx/Empleo/ciudad-de-m%C3%A9xico-mesero-cdmx-empleos-SRCH_IL.0,16_IC5017436_KO17,28.htm"},
+    {"id":"trafi-pizza-coyoacan","empresa":"El Trafi de Pizza","tipo":"Restaurante","zona":"Coyoacán","puesto":"Mesera","sueldo":"","contactos":[{"tipo":"whatsapp","valor":"5554690075"}],"notas":"","fuente":"https://www.tiktok.com/discover/bolsa-de-trabajo-restaurante-cdmx-2024"},
+    {"id":"olvidado-cafeteria","empresa":"El Olvidado (cafetería)","tipo":"Restaurante","zona":"Coyoacán / Condesa","puesto":"Mesera","sueldo":"","contactos":[{"tipo":"whatsapp","valor":"5592299588"}],"notas":"","fuente":"https://mx.indeed.com/q-mesera-cafeter%C3%ADa-l-coyoac%C3%A1n,-cdmx-empleos.html"},
+    {"id":"na-tlali","empresa":"Restaurante Na Tlali","tipo":"Restaurante","zona":"Álvaro Obregón","puesto":"Mesera fin de semana","sueldo":"","contactos":[{"tipo":"whatsapp","valor":"5540207017"}],"notas":"Solo mensajes, sin llamadas.","fuente":"https://mx.indeed.com/q-meseros-l-xochimilco,-cdmx-empleos.html"},
+    {"id":"asoc-hoteles-cdmx","empresa":"Asociación de Hoteles CDMX","tipo":"Restaurante","zona":"Varias (incluye Reforma)","puesto":"Mesera / Capitana (hoteles)","sueldo":"Base + propinas","contactos":[{"tipo":"web","valor":"https://trabajo.asociaciondehoteles.com.mx/ofertas/vacantes/"},{"tipo":"whatsapp","valor":"5633649392"}],"notas":"Bolsa de trabajo de hoteles.","fuente":"https://trabajo.asociaciondehoteles.com.mx/ofertas/vacantes/"},
+    {"id":"boutique-textil-subgerente","empresa":"Boutique textil (40 años)","tipo":"Tienda","zona":"CDMX","puesto":"Subgerente de boutique","sueldo":"","contactos":[{"tipo":"whatsapp","valor":"5555087307"}],"notas":"Atención a Nadia Velázquez. Mandar nombre completo y nombre de la vacante.","fuente":"https://mx.indeed.com/q-tienda-ropa-l-ciudad-de-m%C3%A9xico-empleos.html"},
+    {"id":"supervisor-departamental-bj","empresa":"Supervisor(a) departamental","tipo":"Tienda","zona":"Benito Juárez","puesto":"Supervisora departamental","sueldo":"$20,000","contactos":[{"tipo":"whatsapp","valor":"5579095769"}],"notas":"El más cercano a la meta de $17,000.","fuente":"https://mx.indeed.com/q-tienda-marca-lujo-l-ciudad-de-m%C3%A9xico-empleos.html"},
+    {"id":"cya-vendedora","empresa":"C&A","tipo":"Tienda","zona":"CDMX","puesto":"Vendedora","sueldo":"","contactos":[{"tipo":"whatsapp","valor":"5534735741"}],"notas":"","fuente":"https://mx.indeed.com/q-bershka,-tiendas-l-ciudad-de-m%C3%A9xico-empleos.html"},
+    {"id":"rebel-soul-fashion","empresa":"Rebel Soul Fashion","tipo":"Tienda","zona":"Centro","puesto":"Vendedora / Ejecutiva","sueldo":"","contactos":[{"tipo":"whatsapp","valor":"5539043059"}],"notas":"","fuente":"https://mx.indeed.com/q-ropa-medio-tiempo-l-ciudad-de-m%C3%A9xico-empleos.html"},
+    {"id":"axo-nike-reforma222","empresa":"Grupo Axo · Nike Reforma 222","tipo":"Tienda","zona":"Reforma","puesto":"Líder / Subgerente de almacén","sueldo":"$18,000","contactos":[{"tipo":"web","valor":"https://mx.computrabajo.com/trabajo-de-grupo-axo-marcas"}],"notas":"Postular por Computrabajo o Indeed.","fuente":"https://mx.computrabajo.com/trabajo-de-grupo-axo-marcas"},
+    {"id":"palacio-hierro-coyoacan","empresa":"El Palacio de Hierro","tipo":"Tienda","zona":"Coyoacán","puesto":"Subgerencia boutique / Concierge","sueldo":"$12,000–17,000","contactos":[{"tipo":"web","valor":"https://www.occ.com.mx/empleos/bolsa-de-trabajo-el-palacio-de-hierro/"}],"notas":"Postular por OCC.","fuente":"https://www.occ.com.mx/empleos/bolsa-de-trabajo-el-palacio-de-hierro/"},
+    {"id":"inditex-cdmx","empresa":"Inditex (Zara, Massimo Dutti)","tipo":"Tienda","zona":"CDMX","puesto":"Deputy Manager / Responsable de sección","sueldo":"$20,000–25,000","contactos":[{"tipo":"web","valor":"https://www.inditexpeople.com/mx/es/joinus"}],"notas":"Portal oficial de Inditex.","fuente":"https://mx.indeed.com/cmp/Inditex"},
+    {"id":"mango-oasis-coyoacan","empresa":"Mango · Oasis Coyoacán","tipo":"Tienda","zona":"Coyoacán","puesto":"Asesora de presentación visual","sueldo":"$13,000","contactos":[{"tipo":"web","valor":"https://mx.indeed.com/q-oasis-l-coyoac%C3%A1n,-cdmx-empleos.html"}],"notas":"Vacante de El Palacio de Hierro.","fuente":"https://mx.jooble.org/trabajo-vendedoras+oasis+coyoacan"}
+  ]
+}
+</script>
+
+<script>
+(function(){
+const KEY = 'mi-busqueda-cdmx-v1';
+const ESTADOS = [
+  {id:'pendiente', label:'Pendiente', c:'--st-pend'},
+  {id:'enviado', label:'CV enviado', c:'--st-env'},
+  {id:'respondio', label:'Respondió', c:'--st-resp'},
+  {id:'entrevista', label:'Entrevista', c:'--st-ent'},
+  {id:'oferta', label:'Oferta', c:'--st-ofe'},
+  {id:'descartado', label:'Descartado', c:'--st-desc'}
+];
+const ORDEN = {oferta:0, entrevista:1, respondio:2, enviado:3, pendiente:4, descartado:5};
+const PLANTILLA = 'Hola, buen día. Vi la vacante de {puesto} en {empresa}. Tengo 10 años de experiencia en atención al cliente, manejo de caja/POS y trabajo en equipo, además de título técnico. Me gustaría enviarles mi CV. ¿Sigue disponible la vacante?';
+
+const W=(n)=>({t:'wa',v:n}), T=(n)=>({t:'tel',v:n}), E=(v)=>({t:'email',v}), U=(v)=>({t:'web',v});
+const ICON_WA='<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.5-.3z"/></svg>';
+const ICON_MAIL='<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M3 6h18v12H3z M3 7l9 6 9-6"/></svg>';
+const $=(id)=>document.getElementById(id);
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function nowISO(){return new Date().toISOString()}
+
+/* Lista embebida */
+let LISTA={actualizado:'',ofertas:[]};
+try{ LISTA=JSON.parse(document.getElementById('ofertas').textContent); }catch(e){}
+const TMAP={whatsapp:'wa',wa:'wa',telefono:'tel',tel:'tel',email:'email',correo:'email',web:'web',portal:'web'};
+function fromOferta(o){ return {nombre:o.empresa||'',tipo:o.tipo||'Restaurante',zona:o.zona||'',puesto:o.puesto||'',sueldo:o.sueldo||'',contactos:(o.contactos||[]).map(k=>({t:TMAP[k.tipo]||'web',v:String(k.valor||'')})).filter(k=>k.v),fuente:o.fuente||''}; }
+function norm(x){return String(x||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'')}
+
+/* Mezcla la lista embebida con lo guardado: agrega nuevas, actualiza datos de las que no editaste,
+   marca las que ya no aparecen. Nunca borra estados, notas ni historial. */
+function mergeLista(st){
+  if(!Array.isArray(LISTA.ofertas)) return {nuevas:0};
+  const t=nowISO(); let nuevas=0;
+  const ids=new Set(LISTA.ofertas.map(o=>o.id));
+  LISTA.ofertas.forEach(o=>{
+    if(!o||!o.id) return;
+    let it=st.items.find(i=>i.origen===o.id);
+    if(!it){ it=st.items.find(i=>!i.origen && norm(i.nombre)===norm(o.empresa)); if(it) it.origen=o.id; }
+    const d=fromOferta(o);
+    if(!it){
+      st.items.push({id:uid(),origen:o.id,...d,notas:o.notas||'',estado:'pendiente',historial:[{f:t,x:'Agregada a la lista ('+(LISTA.actualizado||'actualización')+')'}],actualizado:t,nueva:true});
+      nuevas++;
+    } else {
+      if(!it.editado){ Object.assign(it,d); }
+      else if(!it.fuente) it.fuente=d.fuente;
+      if(it.fueraDeLista){ it.fueraDeLista=false; }
+    }
+  });
+  st.items.forEach(i=>{ if(i.origen && !ids.has(i.origen)) i.fueraDeLista=true; });
+  st.listaVersion=LISTA.actualizado||'';
+  return {nuevas};
+}
+
+let storageOK = true, storageMsg = '';
+function blank(){ return {v:2, plantilla:PLANTILLA, creado:nowISO(), items:[]}; }
+function load(){
+  let raw=null;
+  try{ raw = localStorage.getItem(KEY); }catch(e){ storageOK=false; storageMsg='Este navegador no permite guardar datos. Lo que anotes se perderá al cerrar la página.'; return blank(); }
+  if(raw){
+    try{ const d=JSON.parse(raw); if(d && Array.isArray(d.items)){ if(!d.plantilla) d.plantilla=PLANTILLA; return d; } }catch(e){}
+    try{ localStorage.setItem(KEY+'-recuperado-'+Date.now(), raw); }catch(e){}
+    storageMsg='Encontré datos dañados y los guardé aparte. Empecé una lista nueva.';
+  }
+  return blank();
+}
+let state = load();
+const primeraVez = !state.listaVersion && state.items.length===0;
+const prevVersion = state.listaVersion;
+const {nuevas} = mergeLista(state);
+let lastSave = null;
+function save(){
+  if(!storageOK) return;
+  try{ localStorage.setItem(KEY, JSON.stringify(state)); lastSave=new Date(); if($('savedot')) paintSaved(); }
+  catch(e){ storageOK=false; storageMsg='No se pudo guardar el último cambio (almacenamiento lleno o bloqueado). Copia un respaldo en Ajustes.'; if($('banner')) renderBanner(); }
+}
+save();
+try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+
+function est(id){return ESTADOS.find(e=>e.id===id)||ESTADOS[0]}
+function pillStyle(id){const e=est(id);return `color:var(${e.c});background:var(${e.c}-bg)`}
+function fmtPhone(n){const d=n.replace(/\D/g,'');return d.length===10?d.slice(0,2)+' '+d.slice(2,6)+' '+d.slice(6):n}
+function days(iso){return Math.floor((Date.now()-new Date(iso).getTime())/864e5)}
+function rel(iso){const d=days(iso);if(d<=0)return 'hoy';if(d===1)return 'ayer';return 'hace '+d+' días'}
+function fdate(iso){return new Date(iso).toLocaleString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}
+function needsFollow(it){return (it.estado==='enviado' && days(it.actualizado)>=4)}
+function toast(msg){const t=$('toast');t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,2200)}
+function paintSaved(){ $('savedot').textContent = storageOK ? ('Guardado en este teléfono'+(lastSave?' · '+lastSave.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}):'')) : ''; }
+function renderBanner(){ $('banner').innerHTML = storageMsg ? `<div class="banner">${esc(storageMsg)}</div>` : ''; }
+
+let filtro = {estado:'', tipo:'', q:''};
+
+function render(){
+  const items=state.items;
+  const c=(id)=>items.filter(i=>i.estado===id).length;
+  const activos=items.filter(i=>i.estado!=='descartado').length;
+  $('tally').innerHTML = `
+    <div><b>${activos}</b><span>Activas</span></div>
+    <div><b>${c('enviado')}</b><span>Enviadas</span></div>
+    <div><b>${c('respondio')+c('entrevista')}</b><span>Respuestas</span></div>
+    <div><b>${c('oferta')}</b><span>Ofertas</span></div>`;
+  $('chips').innerHTML = [{id:'',label:'Todas'},...ESTADOS].map(e=>{
+    const n = e.id? c(e.id) : items.length;
+    return `<button class="chip" type="button" data-est="${e.id}" aria-pressed="${filtro.estado===e.id}">${esc(e.label)}<i>${n}</i></button>`}).join('');
+  const q=filtro.q.trim().toLowerCase();
+  const vis = items.filter(i=>(!filtro.estado||i.estado===filtro.estado)&&(!filtro.tipo||i.tipo===filtro.tipo)&&(!q||[i.nombre,i.zona,i.puesto,i.notas].join(' ').toLowerCase().includes(q)))
+    .sort((a,b)=>(needsFollow(b)-needsFollow(a))||((b.nueva?1:0)-(a.nueva?1:0))||(ORDEN[a.estado]-ORDEN[b.estado])||a.nombre.localeCompare(b.nombre,'es'));
+  $('list').innerHTML = vis.length ? vis.map(i=>{
+    const wa=i.contactos.find(k=>k.t==='wa')||i.contactos.find(k=>k.t==='tel');
+    const em=i.contactos.find(k=>k.t==='email');
+    const web=i.contactos.find(k=>k.t==='web');
+    const quick=[
+      wa?`<a class="btn qa wa" href="${waHref(i,wa)}" target="_blank" rel="noopener" data-quick="WhatsApp">${ICON_WA} WhatsApp</a>`:'',
+      em?`<a class="btn qa" href="${mailHref(i,em)}" data-quick="correo">${ICON_MAIL} Correo</a>`:'',
+      (!wa&&!em&&web)?`<a class="btn qa" href="${esc(web.v)}" target="_blank" rel="noopener" data-quick="portal">Abrir portal</a>`:''
+    ].join('');
+    return `
+    <article class="card" data-id="${i.id}" tabindex="0" role="button" aria-label="Ver ${esc(i.nombre)}">
+      <div class="card-head"><h3>${esc(i.nombre)}</h3><span class="pill" style="${pillStyle(i.estado)}">${esc(est(i.estado).label)}</span></div>
+      <div class="meta">${esc(i.puesto)}${i.zona?' · '+esc(i.zona):''}${i.sueldo?' · <span class="pay">'+esc(i.sueldo)+'</span>':''}</div>
+      <div class="card-foot">
+        <span class="tag">${esc(i.tipo)}</span>
+        ${i.nueva?'<span class="tag new">Nueva</span>':''}
+        ${i.fueraDeLista?'<span class="tag">Ya no aparece en la lista</span>':''}
+        ${needsFollow(i)?'<span class="tag due">Dar seguimiento</span>':''}
+        <span class="when">${rel(i.actualizado)}</span>
+      </div>
+      ${quick?`<div class="quick">${quick}</div>`:''}
+    </article>`}).join('') : `<div class="empty">No hay vacantes con este filtro.</div>`;
+  paintSaved(); renderBanner();
+  if(LISTA.actualizado){ const d=new Date(LISTA.actualizado+'T12:00:00'); $('sub').textContent='Lista del '+d.toLocaleDateString('es-MX',{day:'numeric',month:'long'})+' · se actualiza cada 3 días'; }
+}
+
+function touch(it, texto){ const t=nowISO(); it.actualizado=t; if(texto) it.historial.unshift({f:t,x:texto}); save(); }
+
+/* ---------- hoja ---------- */
+function openSheet(html){ $('sheetIn').innerHTML='<div class="grab"></div>'+html; $('scrim').hidden=false; $('sheet').hidden=false; $('sheet').scrollTop=0; }
+function closeSheet(){ $('scrim').hidden=true; $('sheet').hidden=true; $('sheetIn').innerHTML=''; render(); }
+$('scrim').addEventListener('click',closeSheet);
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !$('sheet').hidden) closeSheet(); });
+
+function waMsg(it){ return (state.plantilla||PLANTILLA).replace(/\{puesto\}/g,it.puesto||'la vacante').replace(/\{empresa\}/g,it.nombre); }
+function waHref(it,k){ return 'https://wa.me/52'+k.v.replace(/\D/g,'').slice(-10)+'?text='+encodeURIComponent(waMsg(it)); }
+function mailHref(it,k){ return 'mailto:'+encodeURIComponent(k.v).replace('%40','@')+'?subject='+encodeURIComponent('Postulación: '+(it.puesto||'vacante')+' – '+it.nombre)+'&body='+encodeURIComponent(waMsg(it)); }
+function markSent(it,via){ if(it.estado==='pendiente'){ it.estado='enviado'; touch(it,'Contacté por '+via); } else { touch(it,'Escribí por '+via); } }
+function copy(text, ok){
+  const done=()=>toast(ok||'Copiado');
+  try{ navigator.clipboard.writeText(text).then(done,()=>fallbackCopy(text,done)); }catch(e){ fallbackCopy(text,done); }
+}
+function fallbackCopy(text,done){ const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); let ok=false; try{ok=document.execCommand('copy')}catch(e){} ta.remove(); if(ok) done(); else toast('No se pudo copiar; mantén presionado el texto para copiarlo'); }
+
+function contactHTML(it,k,idx){
+  const kinds={wa:'WhatsApp',tel:'Teléfono',email:'Correo',web:'Portal de empleo'};
+  let val = k.t==='wa'||k.t==='tel' ? fmtPhone(k.v) : k.v;
+  let actions='';
+  const d=k.v.replace(/\D/g,'');
+  if(k.t==='wa') actions=`<a class="btn primary" href="${waHref(it,k)}" target="_blank" rel="noopener" data-act="open" data-via="WhatsApp">${ICON_WA} Abrir WhatsApp</a><a class="btn" href="tel:+52${d}">Llamar</a>`;
+  if(k.t==='tel') actions=`<a class="btn primary" href="tel:+52${d}">Llamar</a><a class="btn wa" href="${waHref(it,k)}" target="_blank" rel="noopener" data-act="open" data-via="WhatsApp">${ICON_WA} WhatsApp</a>`;
+  if(k.t==='email') actions=`<a class="btn primary" href="${mailHref(it,k)}" data-act="open" data-via="correo">${ICON_MAIL} Abrir correo</a>`;
+  if(k.t==='web') actions=`<a class="btn primary" href="${esc(k.v)}" target="_blank" rel="noopener" data-act="open" data-via="portal">Abrir portal</a>`;
+  return `<div class="contact"><div class="contact-row"><div style="min-width:0"><div class="ckind">${kinds[k.t]}</div><div class="cval">${esc(val)}</div></div>
+    <button class="btn ghost" type="button" data-copy="${esc(k.v)}">Copiar</button></div><div class="btns">${actions}</div></div>`;
+}
+
+function openDetail(id){
+  const it=state.items.find(i=>i.id===id); if(!it) return;
+  if(it.nueva){ it.nueva=false; save(); }
+  openSheet(`
+    <div class="sheet-top"><div><h2>${esc(it.nombre)}</h2><div class="meta">${esc(it.puesto)}${it.zona?' · '+esc(it.zona):''}${it.sueldo?' · <span class="pay">'+esc(it.sueldo)+'</span>':''}</div></div>
+      <button class="close" type="button" data-act="close" aria-label="Cerrar">✕</button></div>
+    <div class="sec"><span class="lbl">Estado</span>
+      <div class="states">${ESTADOS.map(e=>`<button type="button" data-state="${e.id}" aria-pressed="${it.estado===e.id}" style="${it.estado===e.id?`color:var(${e.c});background:var(${e.c}-bg);border-color:var(${e.c})`:''}">${esc(e.label)}</button>`).join('')}</div>
+    </div>
+    <div class="sec"><span class="lbl">Contacto</span>
+      ${it.contactos.length? it.contactos.map((k,i)=>contactHTML(it,k,i)).join('') : '<span class="hint">Sin contacto. Agrégalo en “Editar datos”.</span>'}
+      <details><summary class="hint">Ver mensaje que se envía</summary><p class="hint" style="margin:.5em 0 0">${esc(waMsg(it))}</p><button class="btn ghost" type="button" data-act="copymsg">Copiar mensaje</button></details>
+      <span class="hint">Al abrir WhatsApp o correo desde aquí, si estaba “Pendiente” se marca como “CV enviado”.</span>
+    </div>
+    ${it.fuente?`<a class="btn ghost" href="${esc(it.fuente)}" target="_blank" rel="noopener">Ver publicación original</a>`:''}
+    ${it.fueraDeLista?'<span class="hint">Esta vacante ya no apareció en la última búsqueda; puede estar cerrada. Tus notas se conservan.</span>':''}
+    <div class="sec"><label class="lbl" for="notas">Notas</label>
+      <textarea id="notas" placeholder="Con quién hablaste, requisitos, horario, qué documentos pidieron…">${esc(it.notas||'')}</textarea>
+    </div>
+    <div class="sec"><label class="lbl" for="seg">Registrar seguimiento</label>
+      <div class="row"><input id="seg" class="field" style="flex:1;min-width:0;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px" placeholder="Ej. Me citaron el jueves 11:00"><button class="btn primary" type="button" data-act="addlog">Anotar</button></div>
+      <ul class="log">${it.historial.map(h=>`<li><time>${fdate(h.f)}</time>${esc(h.x)}</li>`).join('')}</ul>
+    </div>
+    <div class="row"><button class="btn" type="button" data-act="edit">Editar datos</button><button class="btn danger" type="button" data-act="askdel">Eliminar vacante</button></div>
+    <div id="delbox"></div>
+  `);
+  const sheet=$('sheetIn');
+  let nt;
+  $('notas').addEventListener('input',e=>{ it.notas=e.target.value; clearTimeout(nt); nt=setTimeout(()=>{ it.actualizado=nowISO(); save(); },400); });
+  sheet.onclick=(e)=>{
+    const b=e.target.closest('[data-state],[data-act],[data-copy]'); if(!b) return;
+    if(b.dataset.copy!==undefined){ copy(b.dataset.copy); return; }
+    if(b.dataset.state){ if(it.estado!==b.dataset.state){ it.estado=b.dataset.state; touch(it,'Estado: '+est(it.estado).label); openDetail(id);} return; }
+    const a=b.dataset.act;
+    if(a==='close') closeSheet();
+    if(a==='open'){ markSent(it,b.dataset.via||'mensaje'); setTimeout(()=>openDetail(id),300); }
+    if(a==='copymsg') copy(waMsg(it),'Mensaje copiado');
+    if(a==='addlog'){ const v=$('seg').value.trim(); if(!v){$('seg').focus();return;} touch(it,v); openDetail(id); toast('Anotado'); }
+    if(a==='edit') openForm(id);
+    if(a==='askdel'){ $('delbox').innerHTML=`<div class="confirm"><strong>¿Eliminar “${esc(it.nombre)}”?</strong><span class="hint">Se borran sus notas e historial. No se puede deshacer.</span><div class="row"><button class="btn dangerfill" type="button" data-act="del">Sí, eliminar</button><button class="btn" type="button" data-act="nodel">Cancelar</button></div></div>`; }
+    if(a==='nodel') $('delbox').innerHTML='';
+    if(a==='del'){ state.items=state.items.filter(x=>x.id!==id); save(); closeSheet(); toast('Vacante eliminada'); }
+  };
+}
+
+function openForm(id){
+  const it = id ? state.items.find(i=>i.id===id) : null;
+  const get=(t)=> it ? it.contactos.filter(k=>k.t===t).map(k=>k.v).join(', ') : '';
+  openSheet(`
+    <div class="sheet-top"><h2>Editar vacante</h2><button class="close" type="button" data-act="close" aria-label="Cerrar">✕</button></div>
+    <form id="frm" class="sec" style="gap:12px">
+      <div class="field"><label for="f_nombre">Empresa o lugar *</label><input id="f_nombre" required value="${esc(it?.nombre||'')}" placeholder="Ej. Restaurante La Docena"></div>
+      <div class="grid2">
+        <div class="field"><label for="f_tipo">Tipo</label><select id="f_tipo"><option ${it?.tipo==='Restaurante'?'selected':''}>Restaurante</option><option ${it?.tipo==='Tienda'?'selected':''}>Tienda</option></select></div>
+        <div class="field"><label for="f_zona">Zona</label><input id="f_zona" value="${esc(it?.zona||'')}" placeholder="Condesa"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label for="f_puesto">Puesto</label><input id="f_puesto" value="${esc(it?.puesto||'')}" placeholder="Mesera"></div>
+        <div class="field"><label for="f_sueldo">Sueldo</label><input id="f_sueldo" value="${esc(it?.sueldo||'')}" placeholder="$10,000 + propinas"></div>
+      </div>
+      <div class="field"><label for="f_wa">WhatsApp (10 dígitos)</label><input id="f_wa" inputmode="tel" value="${esc(get('wa'))}" placeholder="55 1234 5678"></div>
+      <div class="field"><label for="f_tel">Teléfono</label><input id="f_tel" inputmode="tel" value="${esc(get('tel'))}"></div>
+      <div class="field"><label for="f_email">Correo</label><input id="f_email" inputmode="email" value="${esc(get('email'))}"></div>
+      <div class="field"><label for="f_web">Link de la vacante</label><input id="f_web" inputmode="url" value="${esc(get('web'))}" placeholder="https://…"></div>
+      <span class="hint">Si hay varios números o correos, sepáralos con coma. Al editar, las actualizaciones automáticas ya no cambian estos datos.</span>
+      <div class="row"><button class="btn primary" type="submit">Guardar</button><button class="btn" type="button" data-act="close">Cancelar</button></div>
+    </form>`);
+  $('sheetIn').onclick=(e)=>{ if(e.target.closest('[data-act="close"]')) { it? openDetail(id) : closeSheet(); } };
+  $('frm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const v=(k)=>$(k).value.trim();
+    const split=(s)=>s.split(',').map(x=>x.trim()).filter(Boolean);
+    const contactos=[...split(v('f_wa')).map(x=>W(x.replace(/\D/g,'').slice(-10))),...split(v('f_tel')).map(x=>T(x.replace(/\D/g,'').slice(-10))),...split(v('f_email')).map(E),...split(v('f_web')).map(U)];
+    const data={nombre:v('f_nombre'),tipo:$('f_tipo').value,zona:v('f_zona'),puesto:v('f_puesto'),sueldo:v('f_sueldo'),contactos};
+    if(!data.nombre){ $('f_nombre').focus(); return; }
+    if(it){ Object.assign(it,data); it.editado=true; touch(it,'Datos editados'); openDetail(id); toast('Guardado'); }
+    else { const t=nowISO(); const n={id:uid(),...data,notas:'',estado:'pendiente',historial:[{f:t,x:'Agregada a la lista'}],actualizado:t}; state.items.push(n); save(); openDetail(n.id); toast('Vacante agregada'); }
+  });
+}
+
+function openSettings(){
+  openSheet(`
+    <div class="sheet-top"><h2>Ajustes</h2><button class="close" type="button" data-act="close" aria-label="Cerrar">✕</button></div>
+    <div class="sec"><label class="lbl" for="plantilla">Mensaje para WhatsApp y correo</label>
+      <textarea id="plantilla" style="min-height:120px">${esc(state.plantilla)}</textarea>
+      <span class="hint">{puesto} y {empresa} se reemplazan solos.</span>
+      <div class="row"><button class="btn primary" type="button" data-act="saveplant">Guardar mensaje</button><button class="btn ghost" type="button" data-act="resetplant">Usar el original</button></div>
+    </div>
+    <div class="sec"><span class="lbl">Respaldo</span>
+      <span class="hint">Tus datos viven solo en este navegador. Copia el respaldo y pégalo en tus notas o mándatelo por WhatsApp de vez en cuando. Si cambias de teléfono o de dirección web, pégalo abajo para recuperar todo.</span>
+      <div class="row"><button class="btn primary" type="button" data-act="backup">Copiar respaldo</button></div>
+      <label class="lbl" for="restore" style="margin-top:6px">Restaurar un respaldo</label>
+      <textarea id="restore" placeholder="Pega aquí el texto del respaldo"></textarea>
+      <div class="row"><button class="btn" type="button" data-act="askrestore">Restaurar</button></div>
+      <div id="restbox"></div>
+    </div>
+    <div class="sec"><span class="lbl">Borrar todo</span>
+      <div class="confirm">
+        <span class="hint">Borra tus estados, notas e historial de este teléfono y vuelve a cargar la lista limpia. Para confirmar escribe <strong>BORRAR</strong>.</span>
+        <input id="wipeword" class="field" style="border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px" autocomplete="off" aria-label="Escribe BORRAR">
+        <div class="row"><button class="btn dangerfill" type="button" data-act="wipe" id="wipebtn" disabled>Borrar todos los datos</button></div>
+      </div>
+    </div>
+    <span class="hint">${storageOK?'Guardado automático activo.':'El guardado no está disponible en este navegador.'} ${state.items.length} vacantes.</span>
+  `);
+  $('wipeword').addEventListener('input',e=>{ $('wipebtn').disabled = e.target.value.trim()!=='BORRAR'; });
+  let pending=null;
+  $('sheetIn').onclick=(e)=>{
+    const b=e.target.closest('[data-act]'); if(!b) return; const a=b.dataset.act;
+    if(a==='close') closeSheet();
+    if(a==='saveplant'){ state.plantilla=$('plantilla').value.trim()||PLANTILLA; save(); toast('Mensaje guardado'); }
+    if(a==='resetplant'){ $('plantilla').value=PLANTILLA; state.plantilla=PLANTILLA; save(); toast('Mensaje original restaurado'); }
+    if(a==='backup') copy(JSON.stringify(state),'Respaldo copiado');
+    if(a==='askrestore'){
+      try{ const d=JSON.parse($('restore').value); if(!d||!Array.isArray(d.items)) throw 0; pending=d;
+        $('restbox').innerHTML=`<div class="confirm"><strong>Respaldo con ${d.items.length} vacantes.</strong><span class="hint">¿Cómo quieres usarlo?</span><div class="row"><button class="btn primary" type="button" data-act="merge">Agregar lo que falte</button><button class="btn danger" type="button" data-act="replace">Reemplazar todo</button></div></div>`;
+      }catch(err){ $('restbox').innerHTML='<div class="banner">Ese texto no es un respaldo válido. Pega el texto completo que copiaste con “Copiar respaldo”.</div>'; }
+    }
+    if(a==='merge' && pending){ const ids=new Set(state.items.map(i=>i.id)); let n=0; pending.items.forEach(i=>{ if(!ids.has(i.id)){state.items.push(i);n++;} }); save(); closeSheet(); toast(n+' vacantes agregadas'); }
+    if(a==='replace' && pending){ state=pending; if(!state.plantilla) state.plantilla=PLANTILLA; mergeLista(state); save(); closeSheet(); toast('Respaldo restaurado'); }
+    if(a==='wipe' && $('wipeword').value.trim()==='BORRAR'){
+      try{ localStorage.removeItem(KEY); }catch(err){}
+      state=blank(); mergeLista(state); save(); closeSheet(); toast('Datos borrados. La lista empezó de cero');
+    }
+  };
+}
+
+$('chips').addEventListener('click',e=>{ const b=e.target.closest('[data-est]'); if(!b) return; filtro.estado=b.dataset.est; render(); });
+$('q').addEventListener('input',e=>{ filtro.q=e.target.value; render(); });
+$('fTipo').addEventListener('change',e=>{ filtro.tipo=e.target.value; render(); });
+$('list').addEventListener('click',e=>{
+  const q=e.target.closest('[data-quick]');
+  const c=e.target.closest('.card'); if(!c) return;
+  const it=state.items.find(i=>i.id===c.dataset.id);
+  if(q){ if(it){ markSent(it,q.dataset.quick); setTimeout(render,300); } return; }
+  openDetail(c.dataset.id);
+});
+$('list').addEventListener('keydown',e=>{ if((e.key==='Enter'||e.key===' ') && e.target.classList.contains('card')){ e.preventDefault(); openDetail(e.target.dataset.id); } });
+$('btnAjustes').addEventListener('click',openSettings);
+window.addEventListener('storage',e=>{ if(e.key===KEY && e.newValue){ try{ state=JSON.parse(e.newValue); render(); }catch(err){} } });
+render();
+if(nuevas && prevVersion){ toast(nuevas+(nuevas===1?' vacante nueva':' vacantes nuevas')+' en la lista'); }
+})();
+</script>
+</body>
+</html>
