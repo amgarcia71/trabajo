@@ -45,26 +45,27 @@ button{cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .wrap{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:0 40px}
 
-header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:14px 10px;border-bottom:1px solid var(--line)}
+header.top{padding-block:12px 4px}
+.filters{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;border-bottom:1px solid var(--line);display:grid;gap:6px}
 .brand{display:flex;align-items:center;justify-content:space-between;gap:12px}
-h1{font-family:var(--f-display);font-weight:800;font-size:1.55rem;letter-spacing:-.02em;margin:0;line-height:1.1}
+h1{font-family:var(--f-display);font-weight:800;font-size:1.3rem;letter-spacing:-.02em;margin:0;line-height:1.1}
 h1 small{display:block;font-family:var(--f-body);font-weight:500;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-top:3px}
-.iconbtn{border:1px solid var(--line);background:var(--surface);border-radius:999px;height:40px;padding:0 14px;font-weight:600;font-size:.88rem;flex:none}
-.tally{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
-.tally div{background:var(--surface);border-radius:10px;padding:8px 10px;border:1px solid var(--line)}
-.tally b{display:block;font-family:var(--f-display);font-size:1.35rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
-.tally span{font-size:.72rem;color:var(--muted);letter-spacing:.02em}
-.search{margin-top:10px;display:flex;gap:8px}
-.search input{flex:1;min-width:0;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);padding:0 12px}
-.search select{height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);padding:0 8px}
-.chips{display:flex;gap:6px;overflow-x:auto;margin-top:10px;padding-bottom:2px;scrollbar-width:none}
+.iconbtn{border:1px solid var(--line);background:var(--surface);border-radius:999px;height:34px;padding:0 12px;font-weight:600;font-size:.88rem;flex:none}
+.tally{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.tally div{background:var(--surface);border-radius:8px;padding:6px 8px;border:1px solid var(--line)}
+.tally b{display:block;font-family:var(--f-display);font-size:1.1rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.tally span{font-size:.68rem;color:var(--muted);letter-spacing:.02em}
+.search{display:flex;gap:6px}
+.search input{flex:1;min-width:0;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--surface);padding:0 10px;font-size:16px}
+.search select{height:34px;border-radius:8px;border:1px solid var(--line);background:var(--surface);padding:0 6px;font-size:.82rem}
+.chips{display:flex;gap:5px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
-.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:.84rem;font-weight:600;white-space:nowrap}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 10px;font-size:.76rem;font-weight:600;white-space:nowrap}
 .chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 .chip i{font-style:normal;opacity:.65;margin-left:4px;font-variant-numeric:tabular-nums}
 
 .banner{margin-top:12px;border-radius:10px;padding:10px 12px;font-size:.88rem;background:var(--warn-bg);color:var(--warn)}
-.list{display:grid;gap:10px;margin-top:14px}
+.list{display:grid;gap:10px;margin-top:10px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:14px;display:grid;gap:8px;text-align:left;width:100%}
 .card-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 .card h3{margin:0;font-size:1.02rem;font-weight:700;line-height:1.25;text-wrap:balance}
@@ -121,7 +122,7 @@ textarea{min-height:84px;resize:vertical}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .confirm{background:var(--sunk);border-radius:12px;padding:12px;display:grid;gap:8px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:.88rem;font-weight:600;z-index:40;max-width:calc(100% - 32px)}
-.savedot{font-size:.74rem;color:var(--muted);margin-top:8px}
+.savedot{font-size:.7rem;color:var(--muted);margin-top:6px}
 @media (prefers-reduced-motion:no-preference){.sheet{animation:up .22s ease-out}@keyframes up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}}
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
@@ -135,6 +136,9 @@ textarea{min-height:84px;resize:vertical}
       <button class="iconbtn" id="btnAjustes" type="button">Ajustes</button>
     </div>
     <div class="tally" id="tally"></div>
+    <div class="savedot" id="savedot"></div>
+  </header>
+  <div class="filters">
     <div class="search">
       <input id="q" type="search" placeholder="Buscar empresa, zona o puesto" aria-label="Buscar">
       <select id="fTipo" aria-label="Tipo">
@@ -142,8 +146,7 @@ textarea{min-height:84px;resize:vertical}
       </select>
     </div>
     <div class="chips" id="chips" role="group" aria-label="Filtrar por estado"></div>
-    <div class="savedot" id="savedot"></div>
-  </header>
+  </div>
   <div id="banner"></div>
   <main class="list" id="list"></main>
 </div>
